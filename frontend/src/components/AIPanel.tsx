@@ -1,0 +1,16 @@
+import {useState} from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import {AlignLeft,CheckSquare,Clipboard,Download,RefreshCw,Send,Square,CalendarDays,Sparkles,X} from 'lucide-react';
+import type {AIResult} from '../types';
+import {download} from '../utils';
+const actions=[{id:'summary',label:'Пересказ',full:'Краткий пересказ по ролям',icon:AlignLeft},{id:'tasks',label:'Задачи',full:'Задачи по участникам',icon:CheckSquare},{id:'minutes',label:'Итог',full:'Итог встречи',icon:Square},{id:'meetings',label:'Встречи',full:'Упомянутые встречи',icon:CalendarDays}];
+type Props={results:Record<string,AIResult>;loading:string|null;error:string;onRun:(id:string,q?:string)=>void;onCancel:()=>void};
+export function AIPanel({results,loading,error,onRun,onCancel}:Props){const [active,setActive]=useState('minutes');const [question,setQuestion]=useState('');const result=results[active];const run=(id:string,q?:string)=>{setActive(id);onRun(id,q)};return <aside className="panel ai-panel"><div className="ai-head"><span className="ai-orb"><Sparkles size={19}/></span><div><span className="eyebrow">Локальная модель</span><h2>AI Assistant</h2></div></div><p className="ai-intro">Превратите разговор в ясные решения, задачи и следующие шаги.</p>
+ <div className="ai-actions">{actions.map(({id,full,icon:Icon})=><button key={id} disabled={!!loading} onClick={()=>run(id)}><Icon size={17}/><span>{full}</span></button>)}</div>
+ <div className="ask"><input value={question} onChange={e=>setQuestion(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&question.trim())run('question',question)}} placeholder="Задать вопрос по транскрипции..."/><button disabled={!question.trim()||!!loading} onClick={()=>run('question',question)}><Send size={17}/></button></div>
+ {loading&&<div className="ai-loading"><div className="loader"><i/><i/><i/></div><strong>{actions.find(a=>a.id===loading)?.full||'Поиск ответа'}</strong><span>Модель анализирует только текст транскрипции</span><button onClick={onCancel}><X size={15}/>Отменить</button></div>}
+ {error&&<div className="error-box">{error}<button onClick={()=>run(active,active==='question'?question:undefined)}>Повторить</button></div>}
+ {!loading&&Object.keys(results).length>0&&<><div className="result-tabs">{actions.filter(a=>results[a.id]).map(a=><button key={a.id} className={active===a.id?'active':''} onClick={()=>setActive(a.id)}>{a.label}</button>)}{results.question&&<button className={active==='question'?'active':''} onClick={()=>setActive('question')}>Ответ</button>}</div>{result&&<div className="result"><div className="result-head"><h3>{result.title}</h3><div><button title="Копировать" onClick={()=>navigator.clipboard.writeText(result.content)}><Clipboard size={16}/></button><button title="Скачать" onClick={()=>download(`${result.title}.md`,result.content,'text/markdown')}><Download size={16}/></button><button title="Повторить" onClick={()=>run(active,active==='question'?question:undefined)}><RefreshCw size={16}/></button></div></div><div className="markdown"><ReactMarkdown remarkPlugins={[remarkGfm]}>{result.content}</ReactMarkdown></div></div>}</>}
+ {!loading&&!result&&<div className="ai-empty"><Sparkles size={24}/><strong>Выберите сценарий анализа</strong><span>Результаты сохранятся во вкладках до обновления страницы</span></div>}
+ </aside>}

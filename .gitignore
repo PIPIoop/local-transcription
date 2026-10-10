@@ -1,0 +1,57 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Local application data
+backend/data/
+backend/uploads/
+uploads/
+data/
+
+# Python
+.venv/
+venv/
+venv*/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Frontend
+node_modules/
+dist/
+build/
+coverage/
+
+# Runtime files
+.run/
+logs/
+*.log
+*.tmp
+
+# Models and large media
+*.pt
+*.pth
+*.onnx
+*.bin
+*.mp3
+*.wav
+*.m4a
+*.aac
+*.flac
+*.ogg
+*.mp4
+*.webm
+*.mov
+*.mkv
+
+# IDE and OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
